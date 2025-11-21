@@ -1,13 +1,43 @@
 import path from 'node:path';
+import { isIP } from 'node:net';
 import { UAParser } from 'ua-parser-js';
 import { browserName, detectOS } from 'detect-browser';
-import isLocalhost from 'is-localhost-ip';
 import ipaddr from 'ipaddr.js';
 import maxmind from 'maxmind';
 import { safeDecodeURIComponent } from '@/lib/url';
 import { stripPort, getIpAddress } from '@/lib/ip';
 
 const MAXMIND = 'maxmind';
+
+function isLocalIP(ip: string): boolean {
+  if (!ip) return false;
+
+  const ipVersion = isIP(ip);
+  if (!ipVersion) {
+    return ip === 'localhost' || ip.endsWith('.local');
+  }
+
+  if (ipVersion === 4) {
+    return (
+      ip === '127.0.0.1' ||
+      ip === '0.0.0.0' ||
+      ip.startsWith('127.') ||
+      ip.startsWith('10.') ||
+      ip.startsWith('192.168.') ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(ip)
+    );
+  } else if (ipVersion === 6) {
+    return (
+      ip === '::1' ||
+      ip === '::' ||
+      ip.startsWith('fc00:') ||
+      ip.startsWith('fd00:') ||
+      ip.startsWith('fe80:')
+    );
+  }
+
+  return false;
+}
 
 const PROVIDER_HEADERS = [
   // Cloudflare headers
@@ -62,7 +92,7 @@ function decodeHeader(s: string | undefined | null): string | undefined | null {
 
 export async function getLocation(ip: string = '', headers: Headers, hasPayloadIP: boolean) {
   // Ignore local ips
-  if (!ip || (await isLocalhost(ip))) {
+  if (!ip || isLocalIP(ip)) {
     return null;
   }
 
