@@ -3,9 +3,8 @@ FROM node:22-alpine AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN npm install -g pnpm
-RUN pnpm install --frozen-lockfile
+COPY package.json package-lock.json* .npmrc* ./
+RUN npm ci --only=production --legacy-peer-deps
 
 # Rebuild the source code only when needed
 FROM node:22-alpine AS builder
@@ -36,16 +35,15 @@ ENV NODE_OPTIONS=$NODE_OPTIONS
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-RUN npm install -g pnpm
 
 RUN set -x \
     && apk add --no-cache curl
 
 # Script dependencies
-RUN pnpm add npm-run-all dotenv chalk semver prisma@6.18.0 @prisma/adapter-pg@6.18.0
+RUN npm install npm-run-all dotenv chalk semver prisma@6.18.0 @prisma/adapter-pg@6.18.0
 
 # Permissions for prisma
-RUN chown -R nextjs:nodejs node_modules/.pnpm/
+RUN chown -R nextjs:nodejs node_modules/
 
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder /app/prisma ./prisma
@@ -64,4 +62,4 @@ EXPOSE 3000
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
-CMD ["pnpm", "start-docker"]
+CMD ["npm", "run", "start-docker"]

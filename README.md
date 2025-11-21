@@ -43,8 +43,10 @@ A detailed getting started guide can be found at [umami.is/docs](https://umami.i
 ```bash
 git clone https://github.com/umami-software/umami.git
 cd umami
-pnpm install
+npm install --legacy-peer-deps
 ```
+
+> **Note**: We use `--legacy-peer-deps` flag to resolve React 19 peer dependency conflicts with some packages that haven't updated yet.
 
 ### Configure Umami
 
@@ -63,7 +65,7 @@ postgresql://username:mypassword@localhost:5432/mydb
 ### Build the Application
 
 ```bash
-pnpm run build
+npm run build
 ```
 
 _The build step will create tables in your database if you are installing for the first time. It will also create a login user with username **admin** and password **umami**._
@@ -71,7 +73,7 @@ _The build step will create tables in your database if you are installing for th
 ### Start the Application
 
 ```bash
-pnpm run start
+npm run start
 ```
 
 _By default, this will launch the application on `http://localhost:3000`. You will need to either [proxy](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/) requests from your web server or change the [port](https://nextjs.org/docs/api-reference/cli#production) to serve the application directly._
@@ -103,8 +105,8 @@ To get the latest features, simply do a pull, install any new dependencies, and 
 
 ```bash
 git pull
-pnpm install
-pnpm run build
+npm install --legacy-peer-deps
+npm run build
 ```
 
 To update the Docker image, simply pull the new images and rebuild:
