@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     rootDir: .
-    startCommand: npm run start-server
+    startCommand: npm run build & npm run start
     repo: https://github.com/gkfat/fork-umami.git
     branch: master
     envVars:
