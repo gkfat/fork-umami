@@ -1,0 +1,22 @@
+services:
+  - name: fork-umami-server
+    type: web
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm run build
+    startCommand: npm run start
+    repo: https://github.com/gkfat/fork-umami.git
+    branch: master
+    envVars:
+      - fromGroup: fork-umami-env
+
+  - name: redis
+    type: redis
+    plan: free
+    ipAllowList: [{ source: '0.0.0.0/0' }]
+
+databases:
+  - name: db
+    plan: free
+    ipAllowList: [{ source: '0.0.0.0/0' }]
